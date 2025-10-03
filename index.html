@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Minimal 3D Model Test</title>
+  <title>3D Model Test</title>
   <style>
     body { margin: 0; overflow: hidden; background: black; }
     canvas { display: block; }
@@ -41,19 +41,12 @@
     directional.position.set(1, 2, 2);
     scene.add(directional);
 
-    const cube = new THREE.Mesh(
-      new THREE.BoxGeometry(0.2, 0.2, 0.2),
-      new THREE.MeshStandardMaterial({ color: 0xff0000 })
-    );
-    cube.position.set(2, 1, 0);
-    scene.add(cube);
-
     const loader = new GLTFLoader();
     loader.load(
-      'https://threejs.org/examples/models/gltf/LeePerrySmith/LeePerrySmith.glb',
+      'https://threejs.org/examples/models/gltf/DamagedHelmet/glTF/DamagedHelmet.gltf',
       (gltf) => {
         const model = gltf.scene;
-        model.scale.set(1, 1, 1);
+        model.scale.set(2, 2, 2);
         model.position.set(0, 0, 0);
         scene.add(model);
         document.getElementById('loading').style.display = 'none';
@@ -67,7 +60,6 @@
 
     function animate() {
       requestAnimationFrame(animate);
-      cube.rotation.y += 0.01;
       renderer.render(scene, camera);
     }
 

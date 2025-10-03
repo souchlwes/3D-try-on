@@ -19,10 +19,16 @@
       margin: 5px;
       width: 80px;
     }
+    #loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      color: white;
+      transform: translate(-50%, -50%);
+    }
   </style>
 </head>
 <body>
-  <!-- Input form for body proportions -->
   <div id="controls">
     <h3>Body Proportions</h3>
     <label>Height (m): <input type="number" id="height" value="1.7" step="0.1" min="1.0" max="2.5"></label><br>
@@ -30,6 +36,7 @@
     <label>Leg Length (m): <input type="number" id="legLength" value="0.9" step="0.1" min="0.5" max="1.2"></label><br>
     <button onclick="updateModel()">Update Model</button>
   </div>
+  <div id="loading">Loading model...</div>
 
   <script type="module">
     import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js';
@@ -45,7 +52,7 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    // Orbit controls for user interaction
+    // Orbit controls
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.target.set(0, 1, 0);
     controls.update();
@@ -57,34 +64,46 @@
     directional.position.set(1, 1, 1);
     scene.add(directional);
 
+    // Fallback cube to confirm rendering
+    const cube = new THREE.Mesh(
+      new THREE.BoxGeometry(0.5, 0.5, 0.5),
+      new THREE.MeshStandardMaterial({ color: 0xff0000 })
+    );
+    cube.position.set(0, 1, 0);
+    scene.add(cube);
+
     // Humanoid model group
     const humanoid = new THREE.Group();
     scene.add(humanoid);
 
-    let model, mixer; // For model and animations
+    let model, mixer;
 
-    // Load GLTF model (replace with your model URL)
+    // Load GLTF model
     const loader = new GLTFLoader();
     loader.load(
-      'https://threejs.org/examples/models/gltf/Soldier.glb', // Example model (replace with a Mixamo or custom GLTF)
+      'https://threejs.org/examples/models/gltf/Soldier.glb', // Replace with './models/yourmodel.glb' for local
       (gltf) => {
         model = gltf.scene;
-        model.scale.set(1, 1, 1); // Initial scale
+        model.scale.set(1, 1, 1);
         humanoid.add(model);
 
-        // Setup animation
+        // Animation setup
         mixer = new THREE.AnimationMixer(model);
         const animations = gltf.animations;
         if (animations && animations.length) {
-          const action = mixer.clipAction(animations[0]); // Play first animation (e.g., idle or walk)
+          const action = mixer.clipAction(animations[0]);
           action.play();
         }
 
-        // Initial model adjustment
-        updateModel();
+        // Hide loading message
+        document.getElementById('loading').style.display = 'none';
+        updateModel(); // Initial adjustment
       },
       (xhr) => console.log((xhr.loaded / xhr.total * 100) + '% loaded'),
-      (error) => console.error('Error loading model:', error)
+      (error) => {
+        console.error('Error loading model:', error);
+        document.getElementById('loading').innerText = 'Failed to load model. Showing cube.';
+      }
     );
 
     // Clock for animations
@@ -92,26 +111,24 @@
 
     // Update model based on user input
     window.updateModel = function() {
-      if (!model) return; // Wait for model to load
+      if (!model) return;
 
       const height = parseFloat(document.getElementById('height').value);
       const armLength = parseFloat(document.getElementById('armLength').value);
       const legLength = parseFloat(document.getElementById('legLength').value);
 
-      // Scale entire model to match height
-      const baseHeight = 1.7; // Assume model is designed for 1.7m height
+      const baseHeight = 1.7;
       const scale = height / baseHeight;
       model.scale.set(scale, scale, scale);
 
-      // Adjust arm and leg lengths by scaling bones
       model.traverse((node) => {
         if (node.isBone) {
           if (node.name.includes('Arm')) {
-            const armScale = armLength / 0.7; // Normalize to default arm length
+            const armScale = armLength / 0.7;
             node.scale.set(1, armScale, 1);
           }
           if (node.name.includes('Leg') || node.name.includes('Thigh') || node.name.includes('Shin')) {
-            const legScale = legLength / 0.9; // Normalize to default leg length
+            const legScale = legLength / 0.9;
             node.scale.set(1, legScale, 1);
           }
         }
@@ -122,7 +139,8 @@
     function animate() {
       requestAnimationFrame(animate);
       const delta = clock.getDelta();
-      if (mixer) mixer.update(delta); // Update animations
+      if (mixer) mixer.update(delta);
+      cube.rotation.y += 0.01; // Rotate cube to confirm rendering
       renderer.render(scene, camera);
     }
 

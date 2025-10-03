@@ -2,146 +2,34 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Three.js Customizable Humanoid</title>
+  <title>Test Three.js</title>
   <style>
     body { margin: 0; overflow: hidden; background: black; }
     canvas { display: block; }
-    #controls {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background: rgba(0, 0, 0, 0.7);
-      color: white;
-      padding: 10px;
-      border-radius: 5px;
-    }
-    #controls input {
-      margin: 5px;
-      width: 80px;
-    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
 </head>
 <body>
-  <!-- Input form for body proportions -->
-  <div id="controls">
-    <h3>Body Proportions</h3>
-    <label>Height (m): <input type="number" id="height" value="1.7" step="0.1" min="1.0" max="2.5"></label><br>
-    <label>Arm Length (m): <input type="number" id="armLength" value="0.7" step="0.1" min="0.4" max="1.0"></label><br>
-    <label>Leg Length (m): <input type="number" id="legLength" value="0.9" step="0.1" min="0.5" max="1.2"></label><br>
-    <button onclick="updateModel()">Update Model</button>
-  </div>
-
   <script>
-    // Scene setup
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 1, 3);
-
+    camera.position.z = 3;
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
-
-    // Lighting
     const ambient = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambient);
-    const directional = new THREE.DirectionalLight(0xffffff, 0.8);
-    directional.position.set(1, 1, 1);
-    scene.add(directional);
-
-    // Humanoid model group
-    const humanoid = new THREE.Group();
-    scene.add(humanoid);
-
-    // Material for realism
-    const skinMaterial = new THREE.MeshStandardMaterial({
-      color: 0xffdbac, // Skin-like color
-      roughness: 0.8,
-      metalness: 0.2
-    });
-
-    // Create initial humanoid parts
-    let head, torso, leftArm, rightArm, leftLeg, rightLeg;
-
-    function createHumanoid(height = 1.7, armLength = 0.7, legLength = 0.9) {
-      // Clear previous model
-      humanoid.clear();
-
-      // Head (sphere)
-      head = new THREE.Mesh(
-        new THREE.SphereGeometry(0.15, 32, 32),
-        skinMaterial
-      );
-      head.position.y = height - 0.15; // Top of the body
-      humanoid.add(head);
-
-      // Torso (cylinder)
-      torso = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.2, 0.2, height - legLength - 0.3, 32),
-        skinMaterial
-      );
-      torso.position.y = (height - legLength - 0.15) / 2 + legLength;
-      humanoid.add(torso);
-
-      // Left Arm (cylinder)
-      leftArm = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.05, 0.05, armLength, 32),
-        skinMaterial
-      );
-      leftArm.position.set(0.3, height - legLength - 0.15 - armLength / 2, 0);
-      humanoid.add(leftArm);
-
-      // Right Arm (cylinder)
-      rightArm = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.05, 0.05, armLength, 32),
-        skinMaterial
-      );
-      rightArm.position.set(-0.3, height - legLength - 0.15 - armLength / 2, 0);
-      humanoid.add(rightArm);
-
-      // Left Leg (cylinder)
-      leftLeg = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.1, 0.1, legLength, 32),
-        skinMaterial
-      );
-      leftLeg.position.set(0.15, legLength / 2, 0);
-      humanoid.add(leftLeg);
-
-      // Right Leg (cylinder)
-      rightLeg = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.1, 0.1, legLength, 32),
-        skinMaterial
-      );
-      rightLeg.position.set(-0.15, legLength / 2, 0);
-      humanoid.add(rightLeg);
-    }
-
-    // Initial model creation
-    createHumanoid();
-
-    // Update model based on user input
-    window.updateModel = function() {
-      const height = parseFloat(document.getElementById('height').value);
-      const armLength = parseFloat(document.getElementById('armLength').value);
-      const legLength = parseFloat(document.getElementById('legLength').value);
-      createHumanoid(height, armLength, legLength);
-    };
-
-    // Animation loop
+    const sphere = new THREE.Mesh(
+      new THREE.SphereGeometry(0.5, 32, 32),
+      new THREE.MeshStandardMaterial({ color: 0x00ff00 })
+    );
+    scene.add(sphere);
     function animate() {
       requestAnimationFrame(animate);
-      humanoid.rotation.y += 0.01; // Rotate the entire model
+      sphere.rotation.y += 0.01;
       renderer.render(scene, camera);
     }
-
     animate();
-
-    // Handle window resize
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
   </script>
 </body>
 </html>

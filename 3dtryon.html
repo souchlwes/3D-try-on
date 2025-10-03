@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Virtual Try-On</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+    body {
+      margin: 0;
+      font-family: 'Press Start 2P', monospace;
+      background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
+      color: #00ffcc;
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #ui {
+      width: 300px;
+      padding: 20px;
+      background: #111;
+      border-right: 2px solid #00ffcc;
+      box-shadow: 0 0 10px #00ffcc;
+      z-index: 10;
+    }
+
+    #ui h2 {
+      font-size: 14px;
+      margin-bottom: 20px;
+      color: #ff66cc;
+    }
+
+    #ui label {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 10px;
+    }
+
+    #ui input, #ui select, #ui button {
+      width: 100%;
+      padding: 6px;
+      margin-bottom: 10px;
+      background: #222;
+      border: 1px solid #00ffcc;
+      color: #00ffcc;
+      font-family: inherit;
+      font-size: 10px;
+    }
+
+    #ui button {
+      background: #ff66cc;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    #viewer {
+      flex: 1;
+      position: relative;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div id="ui">
+    <h2>Customize Avatar</h2>
+    <label>Height (cm): <input type="number" id="height" value="170" /></label>
+    <label>Waist (cm): <input type="number" id="waist" value="70" /></label>
+    <label>Chest (cm): <input type="number" id="chest" value="90" /></label>
+    <label>Skin Tone:
+      <select id="skinTone">
+        <option value="#ffcc99">Light</option>
+        <option value="#d2a679">Medium</option>
+        <option value="#8d5524">Dark</option>
+      </select>
+    </label>
+    <button onclick="updateModel()">Update Model</button>
+    <button onclick="toggleWalk()">Toggle Walk</button>
+    <button onclick="saveProfile()">Save Profile</button>
+    <button onclick="loadProfile()">Load Profile</button>
+  </div>
+  <div id="viewer"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/controls/OrbitControls.js"></script>
+  <script>
+    let scene, camera, renderer, controls;
+    let head, body, arms = [], legs = [], hair, walk = false, walkAngle = 0;
+
+    window.onload = () => {
+      init();
+      animate();
+    };
+
+    function init() {
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.set(0, 1.6, 5);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth - 300, window.innerHeight);
+      renderer.setClearColor(0x1a1a1a);
+      document.getElementById('viewer').appendChild(renderer.domElement);
+
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+      const light = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
+      scene.add(light);
+
+      createModel();
+    }
+
+    function createModel() {
+      const skinColor = document.getElementById('skinTone').value;
+      const skin = new THREE.MeshStandardMaterial({ color: skinColor });
+      const cloth = new THREE.MeshStandardMaterial({ color: 0x00ffcc });
+
+      head = new THREE.Mesh(new THREE.SphereGeometry(0.5, 32, 32), skin);
+      head.position.y = 2;
+      scene.add(head);
+
+      body = new THREE.Mesh(new THREE.CapsuleGeometry(0.6, 1.5, 8, 16), cloth);
+      body.position.y = 0.5;
+      scene.add(body);
+
+      const armLeft = new THREE.Mesh(new THREE.CapsuleGeometry(0.2, 1.2, 8, 16), skin);
+      armLeft.position.set(-0.9, 1, 0);
+      armLeft.rotation.z = Math.PI / 2;
+      scene.add(armLeft);
+      arms.push(armLeft);
+
+      const armRight = armLeft.clone();
+      armRight.position.x = 0.9;
+      scene.add(armRight);
+      arms.push(armRight);
+
+      const legLeft = new THREE.Mesh(new THREE.CapsuleGeometry(0.25, 1.5, 8, 16), cloth);
+      legLeft.position.set(-0.3, -1, 0);
+      scene.add(legLeft);
+      legs.push(legLeft);
+
+      const legRight = legLeft.clone();
+      legRight.position.x = 0.3;
+      scene.add(legRight);
+      legs.push(legRight);
+
+      hair = new THREE.Mesh(new THREE.SphereGeometry(0.3, 16, 16), new THREE.MeshStandardMaterial({ color: 0xff66cc }));
+      hair.position.set(0, 2.4, 0);
+      scene.add(hair);
+    }
+
+    function updateModel() {
+      const height = parseFloat(document.getElementById('height').value);
+      const waist = parseFloat(document.getElementById('waist').value);
+      const chest = parseFloat(document.getElementById('chest').value);
+      const skinColor = document.getElementById('skinTone').value;
+
+      const scaleY = height / 170;
+      const scaleX = waist / 70;
+      const scaleZ = chest / 90;
+
+      body.scale.set(scaleX, scaleY, scaleZ);
+      head.scale.set(scaleX * 0.8, scaleY * 0.8, scaleZ * 0.8);
+      hair.scale.set(scaleX * 0.6, scaleY * 0.6, scaleZ * 0.6);
+
+      arms.forEach(arm => arm.scale.set(1, scaleY * 0.8, 1));
+      legs.forEach(leg => leg.scale.set(1, scaleY, 1));
+
+      head.material.color.set(skinColor);
+      arms.forEach(arm => arm.material.color.set(skinColor));
+    }
+
+    function toggleWalk() {
+      walk = !walk;
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      if (walk) {
+        walkAngle += 0.05;
+        arms[0].rotation.x = Math.sin(walkAngle) * 0.5;
+        arms[1].rotation.x = -Math.sin(walkAngle) * 0.5;
+        legs[0].rotation.x = -Math.sin(walkAngle) * 0.5;
+        legs[1].rotation.x = Math.sin(walkAngle) * 0.5;
+      }
+      renderer.render(scene, camera);
+    }
+
+    function saveProfile() {
+      const profile = {
+        height: document.getElementById('height').value,
+        waist: document.getElementById('waist').value,
+        chest: document.getElementById('chest').value,
+        skinTone: document.getElementById('skinTone').value
+      };
+      localStorage.setItem('bodyProfile', JSON.stringify(profile));
+      alert("Profile saved!");
+    }
+
+    function loadProfile() {
+      const profile = JSON.parse(localStorage.getItem('bodyProfile'));
+      if (profile) {
+        document.getElementById('height').value = profile.height;
+        document.getElementById('waist').value = profile.waist;
+        document.getElementById('chest').value = profile.chest;
+        document.getElementById('skinTone').value = profile.skinTone;
+        updateModel();
+        alert("Profile loaded!");
+      } else {
+        alert("No profile found.");
+      }
+    }
+  </script>
+</body>
+</html>
+

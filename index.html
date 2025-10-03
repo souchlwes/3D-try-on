@@ -202,3 +202,82 @@
       const chest = parseFloat(document.getElementById('chest').value);
       const skinColor = document.getElementById('skinTone').value;
       const hairColor = document.getElementById('hairColor').value
+      const scaleY = height / 170;
+      const scaleX = waist / 70;
+      const scaleZ = chest / 90;
+
+      body.scale.set(scaleX, scaleY, scaleZ);
+      head.scale.set(scaleX * 0.8, scaleY * 0.8, scaleZ * 0.8);
+      hair.scale.set(scaleX * 0.6, scaleY * 0.6, scaleZ * 0.6);
+      shirt.scale.set(scaleX, scaleY, scaleZ);
+      pants.scale.set(scaleX, scaleY, scaleZ);
+
+      arms.forEach(arm => arm.scale.set(1, scaleY * 0.8, 1));
+      legs.forEach(leg => leg.scale.set(1, scaleY, 1));
+
+      head.material.color.set(skinColor);
+      arms.forEach(arm => arm.material.color.set(skinColor));
+      hair.material.color.set(hairColor);
+    }
+
+    function toggleWalk() {
+      walk = !walk;
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      if (walk) {
+        walkAngle += 0.05;
+        const style = document.getElementById('animationStyle').value;
+        if (style === "walk") {
+          arms[0].rotation.x = Math.sin(walkAngle) * 0.5;
+          arms[1].rotation.x = -Math.sin(walkAngle) * 0.5;
+          legs[0].rotation.x = -Math.sin(walkAngle) * 0.5;
+          legs[1].rotation.x = Math.sin(walkAngle) * 0.5;
+        } else if (style === "wave") {
+          arms[0].rotation.x = Math.sin(walkAngle) * 0.8;
+          arms[1].rotation.x = 0;
+        }
+      }
+      renderer.render(scene, camera);
+    }
+
+    function takeSnapshot() {
+      const dataURL = renderer.domElement.toDataURL("image/png");
+      const link = document.createElement("a");
+      link.href = dataURL;
+      link.download = "avatar.png";
+      link.click();
+    }
+
+    function saveProfile() {
+      const profile = {
+        height: document.getElementById('height').value,
+        waist: document.getElementById('waist').value,
+        chest: document.getElementById('chest').value,
+        skinTone: document.getElementById('skinTone').value,
+        hairColor: document.getElementById('hairColor').value,
+        animationStyle: document.getElementById('animationStyle').value
+      };
+      localStorage.setItem('avatarProfile', JSON.stringify(profile));
+      alert("Profile saved!");
+    }
+
+    function loadProfile() {
+      const profile = JSON.parse(localStorage.getItem('avatarProfile'));
+      if (profile) {
+        document.getElementById('height').value = profile.height;
+        document.getElementById('waist').value = profile.waist;
+        document.getElementById('chest').value = profile.chest;
+        document.getElementById('skinTone').value = profile.skinTone;
+        document.getElementById('hairColor').value = profile.hairColor;
+        document.getElementById('animationStyle').value = profile.animationStyle;
+        updateModel();
+        alert("Profile loaded!");
+      } else {
+        alert("No profile found.");
+      }
+    }
+  </script>
+</body>
+</html>

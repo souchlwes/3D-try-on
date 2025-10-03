@@ -110,14 +110,22 @@
     };
 
     function init() {
+      const viewer = document.getElementById('viewer');
+
       scene = new THREE.Scene();
-      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera = new THREE.PerspectiveCamera(75, viewer.clientWidth / viewer.clientHeight, 0.1, 1000);
       camera.position.set(0, 1.6, 5);
 
       renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setSize(window.innerWidth - 300, window.innerHeight);
+      renderer.setSize(viewer.clientWidth, viewer.clientHeight);
       renderer.setClearColor(0x1a1a1a);
-      document.getElementById('viewer').appendChild(renderer.domElement);
+      viewer.appendChild(renderer.domElement);
+
+      window.addEventListener('resize', () => {
+        camera.aspect = viewer.clientWidth / viewer.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(viewer.clientWidth, viewer.clientHeight);
+      });
 
       controls = new THREE.OrbitControls(camera, renderer.domElement);
       const light = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
@@ -202,7 +210,8 @@
       const waist = parseFloat(document.getElementById('waist').value);
       const chest = parseFloat(document.getElementById('chest').value);
       const skinColor = document.getElementById('skinTone').value;
-      const hairColor = document.getElementById('hair').value;
+      const hairColor = document.getElementById('hairColor').value;
+
       const scaleY = height / 170;
       const scaleX = waist / 70;
       const scaleZ = chest / 90;
@@ -221,63 +230,63 @@
       hair.material.color.set(hairColor);
     }
 function toggleWalk() {
-      walk = !walk;
-    }
+  walk = !walk;
+}
 
-    function animate() {
-      requestAnimationFrame(animate);
-      if (walk) {
-        walkAngle += 0.05;
-        const style = document.getElementById('animationStyle').value;
-        if (style === "walk") {
-          arms[0].rotation.x = Math.sin(walkAngle) * 0.5;
-          arms[1].rotation.x = -Math.sin(walkAngle) * 0.5;
-          legs[0].rotation.x = -Math.sin(walkAngle) * 0.5;
-          legs[1].rotation.x = Math.sin(walkAngle) * 0.5;
-        } else if (style === "wave") {
-          arms[0].rotation.x = Math.sin(walkAngle) * 0.8;
-          arms[1].rotation.x = 0;
-        }
-      }
-      renderer.render(scene, camera);
+function animate() {
+  requestAnimationFrame(animate);
+  if (walk) {
+    walkAngle += 0.05;
+    const style = document.getElementById('animationStyle').value;
+    if (style === "walk") {
+      arms[0].rotation.x = Math.sin(walkAngle) * 0.5;
+      arms[1].rotation.x = -Math.sin(walkAngle) * 0.5;
+      legs[0].rotation.x = -Math.sin(walkAngle) * 0.5;
+      legs[1].rotation.x = Math.sin(walkAngle) * 0.5;
+    } else if (style === "wave") {
+      arms[0].rotation.x = Math.sin(walkAngle) * 0.8;
+      arms[1].rotation.x = 0;
     }
+  }
+  renderer.render(scene, camera);
+}
+function takeSnapshot() {
+  const dataURL = renderer.domElement.toDataURL("image/png");
+  const link = document.createElement("a");
+  link.href = dataURL;
+  link.download = "avatar.png";
+  link.click();
+}
 
-    function takeSnapshot() {
-      const dataURL = renderer.domElement.toDataURL("image/png");
-      const link = document.createElement("a");
-      link.href = dataURL;
-      link.download = "avatar.png";
-      link.click();
-    }
+function saveProfile() {
+  const profile = {
+    height: document.getElementById('height').value,
+    waist: document.getElementById('waist').value,
+    chest: document.getElementById('chest').value,
+    skinTone: document.getElementById('skinTone').value,
+    hairColor: document.getElementById('hairColor').value,
+    animationStyle: document.getElementById('animationStyle').value
+  };
+  localStorage.setItem('avatarProfile', JSON.stringify(profile));
+  alert("Profile saved!");
+}
 
-    function saveProfile() {
-      const profile = {
-        height: document.getElementById('height').value,
-        waist: document.getElementById('waist').value,
-        chest: document.getElementById('chest').value,
-        skinTone: document.getElementById('skinTone').value,
-        hairColor: document.getElementById('hairColor').value,
-        animationStyle: document.getElementById('animationStyle').value
-      };
-      localStorage.setItem('avatarProfile', JSON.stringify(profile));
-      alert("Profile saved!");
-    }
-
-    function loadProfile() {
-      const profile = JSON.parse(localStorage.getItem('avatarProfile'));
-      if (profile) {
-        document.getElementById('height').value = profile.height;
-        document.getElementById('waist').value = profile.waist;
-        document.getElementById('chest').value = profile.chest;
-        document.getElementById('skinTone').value = profile.skinTone;
-        document.getElementById('hairColor').value = profile.hairColor;
-        document.getElementById('animationStyle').value = profile.animationStyle;
-        updateModel();
-        alert("Profile loaded!");
-      } else {
-        alert("No profile found.");
-      }
-    }
-  </script>
+function loadProfile() {
+  const profile = JSON.parse(localStorage.getItem('avatarProfile'));
+  if (profile) {
+    document.getElementById('height').value = profile.height;
+    document.getElementById('waist').value = profile.waist;
+    document.getElementById('chest').value = profile.chest;
+    document.getElementById('skinTone').value = profile.skinTone;
+    document.getElementById('hairColor').value = profile.hairColor;
+    document.getElementById('animationStyle').value = profile.animationStyle;
+    updateModel();
+    alert("Profile loaded!");
+  } else {
+    alert("No profile found.");
+  }
+}
+</script>
 </body>
 </html>
+

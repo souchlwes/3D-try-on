@@ -96,6 +96,7 @@
     <button onclick="loadProfile()">Load Profile</button>
   </div>
   <div id="viewer"></div>
+
   <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/controls/OrbitControls.js"></script>
   <script>
@@ -201,10 +202,11 @@
       const waist = parseFloat(document.getElementById('waist').value);
       const chest = parseFloat(document.getElementById('chest').value);
       const skinColor = document.getElementById('skinTone').value;
-      const hairColor = document.getElementById('hairColor').value
+      const hairColor = document.getElementById('hairColor').value;
+
       const scaleY = height / 170;
       const scaleX = waist / 70;
-      const scaleZ = chest / 90;
+            const scaleZ = chest / 90;
 
       body.scale.set(scaleX, scaleY, scaleZ);
       head.scale.set(scaleX * 0.8, scaleY * 0.8, scaleZ * 0.8);
@@ -281,3 +283,4 @@
   </script>
 </body>
 </html>
+

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Virtual Try-On</title>
+  <title>3D Avatar Editor</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
@@ -96,6 +96,7 @@
     let head, body, arms = [], legs = [], hair, walk = false, walkAngle = 0;
 
     window.onload = () => {
+      console.log("Page loaded — initializing...");
       init();
       animate();
     };

@@ -66,10 +66,10 @@
 
     // Fallback cube to confirm rendering
     const cube = new THREE.Mesh(
-      new THREE.BoxGeometry(0.5, 0.5, 0.5),
+      new THREE.BoxGeometry(0.2, 0.2, 0.2),
       new THREE.MeshStandardMaterial({ color: 0xff0000 })
     );
-    cube.position.set(0, 1, 0);
+    cube.position.set(2, 1, 0); // Move cube out of the way
     scene.add(cube);
 
     // Humanoid model group
@@ -81,7 +81,7 @@
     // Load GLTF model
     const loader = new GLTFLoader();
     loader.load(
-      'https://threejs.org/examples/models/gltf/Soldier.glb', // Replace with './models/yourmodel.glb' for local
+      'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/CesiumMan/glTF/CesiumMan.gltf', // Reliable model
       (gltf) => {
         model = gltf.scene;
         model.scale.set(1, 1, 1);
@@ -99,10 +99,10 @@
         document.getElementById('loading').style.display = 'none';
         updateModel(); // Initial adjustment
       },
-      (xhr) => console.log((xhr.loaded / xhr.total * 100) + '% loaded'),
+      (xhr) => console.log(`Model loading: ${(xhr.loaded / xhr.total * 100).toFixed(2)}%`),
       (error) => {
         console.error('Error loading model:', error);
-        document.getElementById('loading').innerText = 'Failed to load model. Showing cube.';
+        document.getElementById('loading').innerText = 'Failed to load model. Showing cube instead.';
       }
     );
 
@@ -111,7 +111,10 @@
 
     // Update model based on user input
     window.updateModel = function() {
-      if (!model) return;
+      if (!model) {
+        console.warn('Model not loaded yet.');
+        return;
+      }
 
       const height = parseFloat(document.getElementById('height').value);
       const armLength = parseFloat(document.getElementById('armLength').value);
@@ -121,13 +124,16 @@
       const scale = height / baseHeight;
       model.scale.set(scale, scale, scale);
 
+      // Traverse skeleton for bone adjustments
       model.traverse((node) => {
         if (node.isBone) {
-          if (node.name.includes('Arm')) {
+          // Case-insensitive bone name check for flexibility
+          const name = node.name.toLowerCase();
+          if (name.includes('arm') || name.includes('forearm') || name.includes('bicep')) {
             const armScale = armLength / 0.7;
             node.scale.set(1, armScale, 1);
           }
-          if (node.name.includes('Leg') || node.name.includes('Thigh') || node.name.includes('Shin')) {
+          if (name.includes('leg') || name.includes('thigh') || name.includes('shin') || name.includes('calf')) {
             const legScale = legLength / 0.9;
             node.scale.set(1, legScale, 1);
           }

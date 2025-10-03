@@ -2,36 +2,91 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Minimal Three.js Test</title>
+  <title>Avatar Test</title>
   <style>
     body { margin: 0; overflow: hidden; }
-    canvas { display: block; }
+    #viewer { width: 100vw; height: 100vh; }
   </style>
 </head>
 <body>
+  <div id="viewer"></div>
+
+  <!-- Three.js and OrbitControls -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/controls/OrbitControls.js"></script>
+
   <script>
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 5;
+    let scene, camera, renderer, controls;
+    let head, body;
 
-    const renderer = new THREE.WebGLRenderer();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
+    init();
+    animate();
 
-    const geometry = new THREE.BoxGeometry();
-    const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-    const cube = new THREE.Mesh(geometry, material);
-    scene.add(cube);
+    function init() {
+      const viewer = document.getElementById('viewer');
+
+      scene = new THREE.Scene();
+
+      camera = new THREE.PerspectiveCamera(75, viewer.clientWidth / viewer.clientHeight, 0.1, 1000);
+      camera.position.set(0, 2, 5);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(viewer.clientWidth, viewer.clientHeight);
+      renderer.setClearColor(0x000000);
+      viewer.appendChild(renderer.domElement);
+
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.target.set(0, 1.2, 0);
+      controls.update();
+
+      window.addEventListener('resize', () => {
+        camera.aspect = viewer.clientWidth / viewer.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(viewer.clientWidth, viewer.clientHeight);
+      });
+
+      const light = new THREE.DirectionalLight(0xffffff, 1);
+      light.position.set(5, 10, 7.5);
+      scene.add(light);
+
+      const ground = new THREE.Mesh(
+        new THREE.PlaneGeometry(20, 20),
+        new THREE.MeshStandardMaterial({ color: 0x222222 })
+      );
+      ground.rotation.x = -Math.PI / 2;
+      ground.position.y = -1.5;
+      scene.add(ground);
+
+      const testBox = new THREE.Mesh(
+        new THREE.BoxGeometry(1, 1, 1),
+        new THREE.MeshStandardMaterial({ color: 0xff0000 })
+      );
+      testBox.position.set(0, 1, 0);
+      scene.add(testBox);
+
+      // Avatar head
+      const skinColor = 0xffcc99;
+      head = new THREE.Mesh(
+        new THREE.SphereGeometry(0.5, 32, 32),
+        new THREE.MeshStandardMaterial({ color: skinColor })
+      );
+      head.position.y = 2;
+      scene.add(head);
+
+      // Avatar body
+      const clothColor = 0x00ffcc;
+      body = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.6, 0.6, 2, 16),
+        new THREE.MeshStandardMaterial({ color: clothColor })
+      );
+      body.position.y = 0.5;
+      scene.add(body);
+    }
 
     function animate() {
       requestAnimationFrame(animate);
-      cube.rotation.x += 0.01;
-      cube.rotation.y += 0.01;
       renderer.render(scene, camera);
     }
-
-    animate();
   </script>
 </body>
 </html>

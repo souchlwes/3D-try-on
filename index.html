@@ -7,11 +7,12 @@
     body { margin: 0; overflow: hidden; background: black; }
     canvas { display: block; }
   </style>
+  <!-- Load Three.js from CDN without ES modules -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
 </head>
 <body>
-  <script type="module">
-    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js';
-
+  <script>
+    // No import needed; THREE is now a global variable
     const scene = new THREE.Scene();
 
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -21,7 +22,7 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    const ambient = new THREE.AmbientLight(0xffffff, 2); // Bright ambient light
+    const ambient = new THREE.AmbientLight(0xffffff, 2);
     scene.add(ambient);
 
     const cube = new THREE.Mesh(

@@ -97,7 +97,7 @@
 </head>
 <body>
   <div class="container">
-    <img src="your-black-image.jpg" alt="Background" class="background" />
+    <img src="7xXG83DH6LHhMbst2wpvQ.jpeg" alt="Background" class="background" />
     <canvas id="visualizer"></canvas>
 
     <div class="mac-bar" id="lyricBar">♪ Irresistible – Irene & Seulgi ♪</div>
@@ -124,7 +124,6 @@
     </div>
   </div>
   <script>
-    // Desktop drag
     function toggleWindow(id) {
       const win = document.getElementById(id);
       win.style.display = win.style.display === 'block' ? 'none' : 'block';
@@ -152,7 +151,6 @@
       });
     });
 
-    // Visualizer
     const audio = document.getElementById('audioPlayer');
     const canvas = document.getElementById('visualizer');
     const ctx = canvas.getContext('2d');
@@ -198,8 +196,6 @@
         ctx.fillRect(x, y, barWidth - 2, barHeight);
       }
     }
-
-    // Lyrics sync
     const lyricBar = document.getElementById('lyricBar');
     const lyrics = [
       { time: 5, text: "Irresistible (Body got you obsessed)" },

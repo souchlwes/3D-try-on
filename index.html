@@ -4,12 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Irresistible – Irene & Seulgi</title>
-  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body, html {
       height: 100%;
-      font-family: 'VT323', monospace;
+      font-family: 'Press Start 2P', monospace;
       background-color: black;
       overflow: hidden;
     }
@@ -37,118 +37,107 @@
       width: 100%;
       padding: 10px;
       background-color: rgba(0, 0, 0, 0.85);
-      color: #00ffcc;
-      font-size: 16px;
+      color: #00ff00;
+      font-size: 12px;
       text-align: center;
       z-index: 5;
-      box-shadow: 0 0 12px rgba(0, 255, 200, 0.5);
-    }
-    .taskbar {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      background-color: rgba(20, 20, 20, 0.8);
-      padding: 8px;
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      z-index: 3;
-    }
-    .taskbar button {
-      background-color: rgba(255, 255, 255, 0.1);
-      color: white;
-      border: 1px solid white;
-      padding: 6px 12px;
-      border-radius: 6px;
-      cursor: pointer;
+      box-shadow: 0 0 12px rgba(0, 255, 0, 0.5);
     }
     .window {
       position: absolute;
-      width: 260px;
-      background-color: rgba(0, 0, 0, 0.85);
-      border: 2px solid white;
-      border-radius: 8px;
+      top: 100px;
+      left: 50px;
+      width: 320px;
+      background-color: #c0c0c0;
+      border: 2px solid #000;
+      box-shadow: inset -2px -2px #fff, inset 2px 2px #808080;
       z-index: 4;
-      box-shadow: 0 0 20px rgba(0, 255, 200, 0.6);
-      display: none;
     }
     .titlebar {
-      background-color: rgba(255, 255, 255, 0.1);
-      padding: 8px;
+      background-color: #000080;
+      color: white;
+      padding: 4px 6px;
       font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       cursor: move;
-      border-bottom: 1px solid white;
+    }
+    .titlebar-buttons {
+      display: flex;
+      gap: 4px;
+    }
+    .titlebar-buttons div {
+      width: 14px;
+      height: 14px;
+      background-color: #c0c0c0;
+      border: 1px solid #000;
+      box-shadow: inset -1px -1px #fff, inset 1px 1px #808080;
+      text-align: center;
+      font-size: 10px;
+      line-height: 14px;
+      cursor: pointer;
     }
     .content {
       padding: 12px;
-      color: white;
-      font-size: 14px;
+      font-size: 10px;
+      color: black;
     }
     #playButton {
-      padding: 10px 20px;
-      font-size: 14px;
-      background-color: rgba(255, 255, 255, 0.1);
-      color: white;
-      border: 1px solid white;
-      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 10px;
+      background-color: #000;
+      color: #00ff00;
+      border: 2px solid #00ff00;
+      box-shadow: 0 0 6px #00ff00;
       cursor: pointer;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <img src="7xXG83DH6LHhMbst2wpvQ.jpeg" alt="Background" class="background" />
+    <img src="mvqmznGbZF1j8m1JctVKR.jpeg" alt="Shell Background" class="background" />
     <canvas id="visualizer"></canvas>
 
     <div class="mac-bar" id="lyricBar">♪ Irresistible – Irene & Seulgi ♪</div>
 
-    <div class="taskbar">
-      <button onclick="toggleWindow('infoWindow')">🦪 Info</button>
-      <button onclick="toggleWindow('playerWindow')">🎵 Player</button>
-    </div>
-
-    <div id="infoWindow" class="window" style="top: 80px; left: 60px;">
-      <div class="titlebar">About This Song</div>
+    <div class="window" id="playerWindow">
+      <div class="titlebar">
+        <span>Music Player</span>
+        <div class="titlebar-buttons">
+          <div>-</div>
+          <div>□</div>
+          <div>X</div>
+        </div>
+      </div>
       <div class="content">
         <p><strong>Red Velvet – Irene & Seulgi</strong></p>
         <p>Irresistible: A velvet-glow concept with pearls and obsession.</p>
-      </div>
-    </div>
-
-    <div id="playerWindow" class="window" style="top: 200px; left: 120px;">
-      <div class="titlebar">Music Player</div>
-      <div class="content">
         <button id="playButton">▶ Play Song</button>
         <audio id="audioPlayer" src="https://www.dropbox.com/scl/fi/80hjn9qa4jqioclui5aa1/Irresistible.mp3?rlkey=jcitnyg5kctbwa44v15q2nj9l&st=bbvk4359&raw=1"></audio>
       </div>
     </div>
-  </div>
   <script>
-    function toggleWindow(id) {
-      const win = document.getElementById(id);
-      win.style.display = win.style.display === 'block' ? 'none' : 'block';
-    }
+    const win = document.getElementById('playerWindow');
+    const title = win.querySelector('.titlebar');
+    let offsetX, offsetY, isDragging = false;
 
-    document.querySelectorAll('.window').forEach(win => {
-      const title = win.querySelector('.titlebar');
-      let offsetX, offsetY, isDragging = false;
+    title.addEventListener('mousedown', e => {
+      isDragging = true;
+      offsetX = e.clientX - win.offsetLeft;
+      offsetY = e.clientY - win.offsetTop;
+    });
 
-      title.addEventListener('mousedown', e => {
-        isDragging = true;
-        offsetX = e.clientX - win.offsetLeft;
-        offsetY = e.clientY - win.offsetTop;
-      });
+    document.addEventListener('mousemove', e => {
+      if (isDragging) {
+        win.style.left = `${e.clientX - offsetX}px`;
+        win.style.top = `${e.clientY - offsetY}px`;
+      }
+    });
 
-      document.addEventListener('mousemove', e => {
-        if (isDragging) {
-          win.style.left = `${e.clientX - offsetX}px`;
-          win.style.top = `${e.clientY - offsetY}px`;
-        }
-      });
-
-      document.addEventListener('mouseup', () => {
-        isDragging = false;
-      });
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
     });
 
     const audio = document.getElementById('audioPlayer');
@@ -159,7 +148,7 @@
 
     let audioCtx, analyser, source, dataArray;
 
-    document.getElementById('playButton').addEventListener('click', () => {
+    document.getElementById('playButton').addEventListener('click', async () => {
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         analyser = audioCtx.createAnalyser();
@@ -170,6 +159,8 @@
         dataArray = new Uint8Array(analyser.frequencyBinCount);
         drawVisualizer();
       }
+
+      await audioCtx.resume();
 
       if (audio.paused) {
         audio.play();
@@ -189,7 +180,7 @@
         const barHeight = dataArray[i] * 1.5;
         const x = i * barWidth;
         const y = canvas.height - barHeight;
-        const glow = `rgba(0, 255, 200, ${barHeight / 300})`;
+        const glow = `rgba(0, 255, 0, ${barHeight / 300})`;
         ctx.fillStyle = glow;
         ctx.shadowBlur = 20;
         ctx.shadowColor = glow;

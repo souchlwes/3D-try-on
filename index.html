@@ -31,27 +31,27 @@
       height: 100%;
       z-index: 1;
     }
-    .mac-bar {
+    .window, .lyrics-window {
       position: absolute;
-      top: 0;
-      width: 100%;
-      padding: 10px;
-      background-color: rgba(0, 0, 0, 0.85);
-      color: #00ff00;
-      font-size: 12px;
-      text-align: center;
-      z-index: 5;
-      box-shadow: 0 0 12px rgba(0, 255, 0, 0.5);
+      width: 320px;
+      background-image: url('https://i.imgur.com/3kQZzqD.jpg');
+      background-size: cover;
+      border: 2px solid #222;
+      box-shadow: inset -2px -2px #555, inset 2px 2px #000;
+      z-index: 4;
     }
     .window {
-      position: absolute;
       top: 100px;
       left: 50px;
-      width: 320px;
-      background-color: #c0c0c0;
-      border: 2px solid #000;
-      box-shadow: inset -2px -2px #fff, inset 2px 2px #808080;
-      z-index: 4;
+    }
+    .lyrics-window {
+      top: 440px;
+      left: 50px;
+      height: 80px;
+      padding: 10px;
+      font-size: 10px;
+      color: #ccc;
+      text-shadow: 1px 1px #000;
     }
     .titlebar {
       background-color: #000080;
@@ -84,14 +84,21 @@
       color: black;
     }
     #playButton {
-      padding: 6px 12px;
+      background-image: url('https://i.imgur.com/3kQZzqD.jpg');
+      background-size: cover;
+      border: 2px solid #222;
+      box-shadow: inset -2px -2px #555, inset 2px 2px #000;
+      color: #ccc;
+      text-shadow: 1px 1px #000;
+      font-family: 'Press Start 2P', monospace;
+      padding: 8px 16px;
       font-size: 10px;
-      background-color: #000;
-      color: #00ff00;
-      border: 2px solid #00ff00;
-      box-shadow: 0 0 6px #00ff00;
       cursor: pointer;
       margin-top: 10px;
+      transition: transform 0.1s ease;
+    }
+    #playButton:hover {
+      transform: scale(1.05);
     }
   </style>
 </head>
@@ -99,8 +106,6 @@
   <div class="container">
     <img src="mvqmznGbZF1j8m1JctVKR.jpeg" alt="Shell Background" class="background" />
     <canvas id="visualizer"></canvas>
-
-    <div class="mac-bar" id="lyricBar">♪ IRRESISTIBLE – IRENE & SEULGI ♪</div>
 
     <div class="window" id="playerWindow">
       <div class="titlebar">
@@ -121,6 +126,8 @@
         </audio>
       </div>
     </div>
+
+    <div class="lyrics-window" id="lyricsPanel">♪ IRRESISTIBLE – IRENE & SEULGI ♪</div>
     <script>
       const win = document.getElementById('playerWindow');
       const title = win.querySelector('.titlebar');
@@ -183,14 +190,11 @@
           const barHeight = dataArray[i] * 1.5;
           const x = i * barWidth;
           const y = canvas.height - barHeight;
-          const glow = `rgba(0, 255, 0, ${barHeight / 300})`;
-          ctx.fillStyle = glow;
-          ctx.shadowBlur = 20;
-          ctx.shadowColor = glow;
+          ctx.fillStyle = `rgba(100, 100, 100, ${barHeight / 300})`;
           ctx.fillRect(x, y, barWidth - 2, barHeight);
         }
       }
-      const lyricBar = document.getElementById('lyricBar');
+      const lyricsPanel = document.getElementById('lyricsPanel');
       const lyrics = [
         { time: 5, text: "Irresistible (Body got you obsessed)" },
         { time: 13, text: "Irresistible (In my little black dress)" },
@@ -228,7 +232,7 @@
         const currentTime = audio.currentTime;
         for (let i = lyrics.length - 1; i >= 0; i--) {
           if (currentTime >= lyrics[i].time) {
-            lyricBar.textContent = lyrics[i].text;
+            lyricsPanel.textContent = lyrics[i].text;
             break;
           }
         }

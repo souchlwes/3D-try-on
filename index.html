@@ -34,49 +34,70 @@
     .window, .lyrics-window {
       position: absolute;
       width: 320px;
-      background-image: url('https://i.imgur.com/3kQZzqD.jpg');
-      background-size: cover;
-      border: 2px solid #222;
-      box-shadow: inset -2px -2px #555, inset 2px 2px #000;
+      background-color: #c0c0c0;
+      border: 2px solid #000;
+      box-shadow: inset -2px -2px #fff, inset 2px 2px #808080;
       z-index: 4;
     }
-.window, .lyrics-window {
-  position: absolute;
-  width: 320px;
-  background-color: #c0c0c0;
-  border: 2px solid #000;
-  box-shadow: inset -2px -2px #fff, inset 2px 2px #808080;
-  z-index: 4;
-}
-
-.lyrics-window {
-  top: 440px;
-  left: 50px;
-  height: 80px;
-  padding: 10px;
-  font-size: 10px;
-  color: black;
-  font-family: 'Press Start 2P', monospace;
-  overflow: hidden;
-}
-
-#playButton {
-  background-color: #e0e0e0;
-  border: 2px solid #000;
-  box-shadow: inset -2px -2px #fff, inset 2px 2px #808080;
-  color: black;
-  font-family: 'Press Start 2P', monospace;
-  padding: 8px 16px;
-  font-size: 10px;
-  cursor: pointer;
-  margin-top: 10px;
-  transition: transform 0.1s ease;
-}
-#playButton:hover {
-  transform: scale(1.05);
-}
-
-    
+    .window {
+      top: 100px;
+      left: 50px;
+    }
+    .lyrics-window {
+      top: 440px;
+      left: 50px;
+      height: 80px;
+      padding: 10px;
+      font-size: 10px;
+      color: black;
+      font-family: 'Press Start 2P', monospace;
+      overflow: hidden;
+    }
+    .titlebar {
+      background-color: #000080;
+      color: white;
+      padding: 4px 6px;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: move;
+    }
+    .titlebar-buttons {
+      display: flex;
+      gap: 4px;
+    }
+    .titlebar-buttons div {
+      width: 14px;
+      height: 14px;
+      background-color: #c0c0c0;
+      border: 1px solid #000;
+      box-shadow: inset -1px -1px #fff, inset 1px 1px #808080;
+      text-align: center;
+      font-size: 10px;
+      line-height: 14px;
+      cursor: pointer;
+    }
+    .content {
+      padding: 12px;
+      font-size: 10px;
+      color: black;
+    }
+    #playButton {
+      background-color: #e0e0e0;
+      border: 2px solid #000;
+      box-shadow: inset -2px -2px #fff, inset 2px 2px #808080;
+      color: black;
+      font-family: 'Press Start 2P', monospace;
+      padding: 8px 16px;
+      font-size: 10px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: transform 0.1s ease;
+    }
+    #playButton:hover {
+      transform: scale(1.05);
+    }
   </style>
 </head>
 <body>
@@ -98,14 +119,14 @@
         <p>Irresistible: A velvet-glow concept with pearls and obsession.</p>
         <button id="playButton">▶ PLAY SONG</button>
         <audio id="audioPlayer" preload="auto">
-          <source src="https://www.dropbox.com/scl/fi/80hjn9qa4jqioclui5aa1/Irresistible.mp3?rlkey=jcitnyg5kctbwa44v15q2nj9l&st=499wla4a&raw=1" type="audio/mpeg">
+          <source src="Irresistible.mp3" type="audio/mpeg">
           Your browser does not support the audio element.
         </audio>
       </div>
     </div>
 
     <div class="lyrics-window" id="lyricsPanel">♪ IRRESISTIBLE – IRENE & SEULGI ♪</div>
-    <script>
+<script>
       const win = document.getElementById('playerWindow');
       const title = win.querySelector('.titlebar');
       let offsetX, offsetY, isDragging = false;
@@ -136,6 +157,8 @@
       let audioCtx, analyser, source, dataArray;
 
       document.getElementById('playButton').addEventListener('click', async () => {
+        console.log("Play button clicked");
+
         if (!audioCtx) {
           audioCtx = new (window.AudioContext || window.webkitAudioContext)();
           analyser = audioCtx.createAnalyser();
@@ -147,7 +170,9 @@
           drawVisualizer();
         }
 
-        await audioCtx.resume();
+        await audioCtx.resume(); // Unlock audio on mobile
+
+        audio.volume = 1.0; // Ensure volume is up
 
         if (audio.paused) {
           audio.play();
@@ -171,7 +196,7 @@
           ctx.fillRect(x, y, barWidth - 2, barHeight);
         }
       }
-      const lyricsPanel = document.getElementById('lyricsPanel');
+const lyricsPanel = document.getElementById('lyricsPanel');
       const lyrics = [
         { time: 5, text: "Irresistible (Body got you obsessed)" },
         { time: 13, text: "Irresistible (In my little black dress)" },

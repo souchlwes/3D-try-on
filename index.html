@@ -115,121 +115,122 @@
         <p><strong>Red Velvet – Irene & Seulgi</strong></p>
         <p>Irresistible: A velvet-glow concept with pearls and obsession.</p>
         <button id="playButton">▶ PLAY SONG</button>
-        <audio id="audioPlayer" src="https://www.dropbox.com/scl/fi/80hjn9qa4jqioclui5aa1/Irresistible.mp3?rlkey=jcitnyg5kctbwa44v15q2nj9l&st=bbvk4359&raw=1"></audio>
+        <audio id="audioPlayer" src="https://www.dropbox.com/scl/fi/80hjn9qa4jqioclui5aa1/Irresistible.mp3?rlkey=jcitnyg5kctbwa44v15q2nj9l&st=bbvk4359&raw=1" preload="auto"></audio>
       </div>
     </div>
-  <script>
-    const win = document.getElementById('playerWindow');
-    const title = win.querySelector('.titlebar');
-    let offsetX, offsetY, isDragging = false;
 
-    title.addEventListener('mousedown', e => {
-      isDragging = true;
-      offsetX = e.clientX - win.offsetLeft;
-      offsetY = e.clientY - win.offsetTop;
-    });
+    <script>
+      const win = document.getElementById('playerWindow');
+      const title = win.querySelector('.titlebar');
+      let offsetX, offsetY, isDragging = false;
 
-    document.addEventListener('mousemove', e => {
-      if (isDragging) {
-        win.style.left = `${e.clientX - offsetX}px`;
-        win.style.top = `${e.clientY - offsetY}px`;
-      }
-    });
+      title.addEventListener('mousedown', e => {
+        isDragging = true;
+        offsetX = e.clientX - win.offsetLeft;
+        offsetY = e.clientY - win.offsetTop;
+      });
 
-    document.addEventListener('mouseup', () => {
-      isDragging = false;
-    });
+      document.addEventListener('mousemove', e => {
+        if (isDragging) {
+          win.style.left = `${e.clientX - offsetX}px`;
+          win.style.top = `${e.clientY - offsetY}px`;
+        }
+      });
 
-    const audio = document.getElementById('audioPlayer');
-    const canvas = document.getElementById('visualizer');
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+      document.addEventListener('mouseup', () => {
+        isDragging = false;
+      });
 
-    let audioCtx, analyser, source, dataArray;
+      const audio = document.getElementById('audioPlayer');
+      const canvas = document.getElementById('visualizer');
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
 
-    document.getElementById('playButton').addEventListener('click', async () => {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        analyser = audioCtx.createAnalyser();
-        source = audioCtx.createMediaElementSource(audio);
-        source.connect(analyser);
-        analyser.connect(audioCtx.destination);
-        analyser.fftSize = 256;
-        dataArray = new Uint8Array(analyser.frequencyBinCount);
-        drawVisualizer();
-      }
+      let audioCtx, analyser, source, dataArray;
 
-      await audioCtx.resume();
+      document.getElementById('playButton').addEventListener('click', async () => {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          analyser = audioCtx.createAnalyser();
+          source = audioCtx.createMediaElementSource(audio);
+          source.connect(analyser);
+          analyser.connect(audioCtx.destination);
+          analyser.fftSize = 256;
+          dataArray = new Uint8Array(analyser.frequencyBinCount);
+          drawVisualizer();
+        }
 
-      if (audio.paused) {
-        audio.play();
-        playButton.textContent = '⏸ PAUSE SONG';
-      } else {
-        audio.pause();
-        playButton.textContent = '▶ PLAY SONG';
-      }
-    });
+        await audioCtx.resume();
 
-    function drawVisualizer() {
-      requestAnimationFrame(drawVisualizer);
-      analyser.getByteFrequencyData(dataArray);
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const barWidth = canvas.width / dataArray.length;
-      for (let i = 0; i < dataArray.length; i++) {
-        const barHeight = dataArray[i] * 1.5;
-        const x = i * barWidth;
-        const y = canvas.height - barHeight;
-        const glow = `rgba(0, 255, 0, ${barHeight / 300})`;
-        ctx.fillStyle = glow;
-        ctx.shadowBlur = 20;
-        ctx.shadowColor = glow;
-        ctx.fillRect(x, y, barWidth - 2, barHeight);
-      }
-    }
-        const lyricBar = document.getElementById('lyricBar');
-    const lyrics = [
-      { time: 5, text: "Irresistible (Body got you obsessed)" },
-      { time: 13, text: "Irresistible (In my little black dress)" },
-      { time: 21, text: "Irresistible (Betcha losin' your breath)" },
-      { time: 29, text: "They tell me, my kiss is so irresistible" },
-      { time: 37, text: "Cheonnune gamgin neoin geol (Love?)" },
-      { time: 45, text: "Nunmeoreobeoril geot gata (Yeah)" },
-      { time: 53, text: "Before you know it, you'll be mine" },
-      { time: 61, text: "Move my lips, bimilseureon yaegi" },
-      { time: 69, text: "You gotta have it, ooh" },
-      { time: 77, text: "Irresistible (Taking over your world)" },
-      { time: 85, text: "Irresistible (In my diamonds and pearls)" },
-      { time: 93, text: "Irresistible (You're falling in love)" },
-      { time: 101, text: "They tell me, my kiss is so irresistible" },
-      { time: 109, text: "Ojik uri dulppunin yeogi (Love)" },
-      { time: 117, text: "Jeomjeom deo ppajyeodeuneun mood" },
-      { time: 125, text: "Jungnyeoge ikkeullin deusi" },
-      { time: 133, text: "Closer and closer into you" },
-      { time: 141, text: "I can't control this chemistry" },
-      { time: 149, text: "Nal mangchin daedo joeul mankeum" },
-      { time: 157, text: "Kiss my lips, just-just like magic" },
-      { time: 165, text: "Move your hips, chojohaejin momjit" },
-      { time: 173, text: "Deulkyeosseo, you got a habit, ooh" },
-      { time: 181, text: "Irresistible (Body got you obsessed)" },
-      { time: 189, text: "Irresistible (In my little black dress)" },
-      { time: 197, text: "Irresistible (Betcha losin' your breath)" },
-      { time: 205, text: "They tell me, my kiss is so irresistible" },
-      { time: 213, text: "Irresistible (Taking over your world)" },
-      { time: 221, text: "Irresistible (In my diamonds and pearls)" },
-      { time: 229, text: "Irresistible (You're falling in love)" },
-      { time: 237, text: "They tell me, my kiss is so irresistible" }
-    ];
+        if (audio.paused) {
+          audio.play();
+          playButton.textContent = '⏸ PAUSE SONG';
+        } else {
+          audio.pause();
+          playButton.textContent = '▶ PLAY SONG';
+        }
+      });
 
-    audio.addEventListener('timeupdate', () => {
-      const currentTime = audio.currentTime;
-      for (let i = lyrics.length - 1; i >= 0; i--) {
-        if (currentTime >= lyrics[i].time) {
-          lyricBar.textContent = lyrics[i].text;
-          break;
+      function drawVisualizer() {
+        requestAnimationFrame(drawVisualizer);
+        analyser.getByteFrequencyData(dataArray);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const barWidth = canvas.width / dataArray.length;
+        for (let i = 0; i < dataArray.length; i++) {
+          const barHeight = dataArray[i] * 1.5;
+          const x = i * barWidth;
+          const y = canvas.height - barHeight;
+          const glow = `rgba(0, 255, 0, ${barHeight / 300})`;
+          ctx.fillStyle = glow;
+          ctx.shadowBlur = 20;
+          ctx.shadowColor = glow;
+          ctx.fillRect(x, y, barWidth - 2, barHeight);
         }
       }
-    });
-  </script>
+      const lyrics = [
+        { time: 5, text: "Irresistible (Body got you obsessed)" },
+        { time: 13, text: "Irresistible (In my little black dress)" },
+        { time: 21, text: "Irresistible (Betcha losin' your breath)" },
+        { time: 29, text: "They tell me, my kiss is so irresistible" },
+        { time: 37, text: "Cheonnune gamgin neoin geol (Love?)" },
+        { time: 45, text: "Nunmeoreobeoril geot gata (Yeah)" },
+        { time: 53, text: "Before you know it, you'll be mine" },
+        { time: 61, text: "Move my lips, bimilseureon yaegi" },
+        { time: 69, text: "You gotta have it, ooh" },
+        { time: 77, text: "Irresistible (Taking over your world)" },
+        { time: 85, text: "Irresistible (In my diamonds and pearls)" },
+        { time: 93, text: "Irresistible (You're falling in love)" },
+        { time: 101, text: "They tell me, my kiss is so irresistible" },
+        { time: 109, text: "Ojik uri dulppunin yeogi (Love)" },
+        { time: 117, text: "Jeomjeom deo ppajyeodeuneun mood" },
+        { time: 125, text: "Jungnyeoge ikkeullin deusi" },
+        { time: 133, text: "Closer and closer into you" },
+        { time: 141, text: "I can't control this chemistry" },
+        { time: 149, text: "Nal mangchin daedo joeul mankeum" },
+        { time: 157, text: "Kiss my lips, just-just like magic" },
+        { time: 165, text: "Move your hips, chojohaejin momjit" },
+        { time: 173, text: "Deulkyeosseo, you got a habit, ooh" },
+        { time: 181, text: "Irresistible (Body got you obsessed)" },
+        { time: 189, text: "Irresistible (In my little black dress)" },
+        { time: 197, text: "Irresistible (Betcha losin' your breath)" },
+        { time: 205, text: "They tell me, my kiss is so irresistible" },
+        { time: 213, text: "Irresistible (Taking over your world)" },
+        { time: 221, text: "Irresistible (In my diamonds and pearls)" },
+        { time: 229, text: "Irresistible (You're falling in love)" },
+        { time: 237, text: "They tell me, my kiss is so irresistible" }
+      ];
+
+      audio.addEventListener('timeupdate', () => {
+        const currentTime = audio.currentTime;
+        for (let i = lyrics.length - 1; i >= 0; i--) {
+          if (currentTime >= lyrics[i].time) {
+            lyricBar.textContent = lyrics[i].text;
+            break;
+          }
+        }
+      });
+    </script>
+  </div>
 </body>
 </html>
